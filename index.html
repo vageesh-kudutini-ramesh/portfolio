@@ -2076,21 +2076,52 @@ document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.obse
 // ============================================================
 // CONTACT FORM
 // ============================================================
-document.getElementById('contactForm').addEventListener('submit', function(e) {
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const formData = new FormData(this);
-  fetch('/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams(formData).toString()
-  }).then(() => {
-    document.getElementById('formSuccess').style.display = 'block';
-    this.reset();
-  }).catch(() => {
-    document.getElementById('formSuccess').style.display = 'block';
-    document.getElementById('formSuccess').textContent = '✓ Message received! Will be in touch soon.';
-    this.reset();
-  });
+  const form = this;
+  const successMsg = document.getElementById('formSuccess');
+  const submitBtn = form.querySelector('.form-submit');
+
+  // Show sending state
+  submitBtn.textContent = 'Sending...';
+  submitBtn.disabled = true;
+
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(formData).toString()
+    });
+
+    if (response.ok) {
+      // Success — Netlify received it
+      successMsg.textContent = '✓ Message sent! Vageesh will get back to you soon.';
+      successMsg.style.display = 'block';
+      form.reset();
+      submitBtn.textContent = 'Send Message ✦';
+      submitBtn.disabled = false;
+    } else {
+      // Netlify returned an error
+      successMsg.textContent = '✗ Something went wrong. Please email vageesh2001@gmail.com directly.';
+      successMsg.style.background = 'rgba(255,50,50,0.1)';
+      successMsg.style.borderColor = 'rgba(255,50,50,0.3)';
+      successMsg.style.color = '#ff6666';
+      successMsg.style.display = 'block';
+      submitBtn.textContent = 'Send Message ✦';
+      submitBtn.disabled = false;
+    }
+  } catch (err) {
+    // Network error
+    successMsg.textContent = '✗ Could not connect. Please email vageesh2001@gmail.com directly.';
+    successMsg.style.background = 'rgba(255,50,50,0.1)';
+    successMsg.style.borderColor = 'rgba(255,50,50,0.3)';
+    successMsg.style.color = '#ff6666';
+    successMsg.style.display = 'block';
+    submitBtn.textContent = 'Send Message ✦';
+    submitBtn.disabled = false;
+  }
 });
 
 // ============================================================
