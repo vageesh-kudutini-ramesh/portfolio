@@ -2260,33 +2260,81 @@ async function sendMessage() {
   document.getElementById('suggestions').style.display = 'none';
 
   addMessage(text, true);
-  conversationHistory.push({ role: 'user', parts: [{ text }] });
   showTyping();
 
-  try {
-    const response = await fetch('/.netlify/functions/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: conversationHistory,
-        systemInstruction: { parts: [{ text: VAGEESH_CONTEXT }] }
-      })
-    });
-
-    const data = await response.json();
+  // Simulate natural typing delay
+  setTimeout(() => {
     removeTyping();
+    const reply = getResponse(text);
+    addMessage(reply, false);
+  }, 1000 + Math.random() * 800);
+}
 
-    if (data.candidates && data.candidates[0]) {
-      const reply = data.candidates[0].content.parts[0].text;
-      conversationHistory.push({ role: 'model', parts: [{ text: reply }] });
-      addMessage(reply, false);
-    } else {
-      addMessage("Hmm, something went sideways in the cosmos. Try asking again!", false);
-    }
-  } catch (err) {
-    removeTyping();
-    addMessage("The wormhole experienced some turbulence. Make sure the site is deployed on Netlify with your API key set!", false);
+function getResponse(input) {
+  const q = input.toLowerCase();
+
+  // STRENGTHS / SOFT SKILLS
+  if (q.match(/strength|soft skill|leadership|communication|adaptab|critical think|attention|detail|problem.solv/)) {
+    return "Vageesh's greatest strength is probably how he combines technical depth with genuine communication — he can architect a complex backend system and then explain it clearly to anyone in the room. His attention to detail means he catches the edge cases others miss, and his adaptability means he's never thrown off when the requirements change (and they always do). Leadership for him isn't loud — it's the kind where people realize later they were guided somewhere great.";
   }
+
+  // PASSION / MOTIVATION / DRIVES
+  if (q.match(/passion|driv|motivat|excit|wake up|love about|why tech|what gets/)) {
+    return "Every day Vageesh wakes up genuinely curious — not just about new tools or frameworks, but about discovery itself. That moment when something broken, confusing, or impossible suddenly clicks and works? That electrical feeling is what drives him. Whether it's a new technology, a natural insight while being present in a moment, or a problem finally solved through real contribution — that's what makes him show up fully every single day.";
+  }
+
+  // TECHNICAL SKILLS / LANGUAGES
+  if (q.match(/tech|skill|language|framework|stack|tool|know|experience with|proficient|java|python|react|spring|node|docker|aws/)) {
+    return "Vageesh's core languages include Java, JavaScript, TypeScript, Python, C++, C#, Go, Dart, PHP and SQL. On the backend he's most at home with Spring Boot, Node.js/Express, and FastAPI. Frontend-wise he works with React and Next.js. For cloud and DevOps he's hands-on with AWS, Docker, and CI/CD pipelines. His databases span PostgreSQL, MySQL, MongoDB, and Firebase. He's also worked with AI integrations using Gemini, Claude, and OpenAI APIs.";
+  }
+
+  // AI INTEGRATION
+  if (q.match(/ai|artificial intel|machine learn|gemini|claude|openai|chatgpt|llm|chatbot|integrat/)) {
+    return "AI integration is one of Vageesh's sharpest skills. He's built real-world AI features — like an intelligent chatbot at Health for Mankind that reduced manual data entry by 20% using Gemini AI. He's worked with Gemini, Claude, and OpenAI APIs, building pipelines that solve actual problems rather than just demo-worthy prototypes. For him, AI is a tool to make products genuinely smarter, not just a buzzword to add to a resume.";
+  }
+
+  // WORK EXPERIENCE / JOBS
+  if (q.match(/work|experience|job|compan|employ|intern|health for mankind|gearshare|boston|portland/)) {
+    return "Vageesh has worked at two companies. At Health for Mankind in Boston, he contributed to medical device software — building secure Dart/Flutter components, integrating Gemini AI to reduce manual data entry by 20%, and implementing CI/CD pipelines. At GearShare in Portland, he focused on backend work — integrating Airtable and Booqable APIs that cut data retrieval time by 40%, establishing real-time sync between web and iOS platforms, and containerizing services with Docker reducing image size by 25%.";
+  }
+
+  // PROJECTS
+  if (q.match(/project|built|finwise|mealcraft|finance|meal|food|portfolio|app|application/)) {
+    return "Vageesh has two production-deployed projects. FinWise is a finance management platform with real-time expense tracking, investment portfolio analysis integrating 50,000+ stock symbols, and enterprise-grade OTP authentication — live at finance-app-fawn-gamma.vercel.app. MealCraft is a full-stack meal planning platform that tracks pantry expiry dates, suggests recipes from expiring ingredients, and generates shopping lists with one click — live at mealcraft-psi.vercel.app. Both are fully deployed and open on GitHub.";
+  }
+
+  // EDUCATION / GPA / UNIVERSITY
+  if (q.match(/educat|school|university|degree|gpa|grade|northeastern|master|bachelor|study|course|vtu/)) {
+    return "Vageesh is completing his Master of Science in Computer Science at Northeastern University with a perfect 4.0 GPA — covering AI, Machine Learning, Mobile Development, Algorithms, and Web Development. Before that he completed his Bachelor of Engineering in Computer Science at Visvesvaraya Technological University in India with an 8.5/10 GPA. The 4.0 at grad school level isn't a small thing — it reflects genuine mastery, not just attendance.";
+  }
+
+  // CERTIFICATIONS
+  if (q.match(/certif|aws|oracle|cloud practition|certified/)) {
+    return "Vageesh holds two cloud certifications earned in November 2025 — the AWS Certified Cloud Practitioner from Amazon Web Services and the Oracle Cloud Infrastructure Foundations Associate from Oracle. Both are industry-recognized credentials that back up his hands-on cloud experience with formal validation.";
+  }
+
+  // SERVICES / HIRE / WORK TOGETHER
+  if (q.match(/service|offer|hire|freelanc|build for|help with|work together|cost|price|website|full.stack/)) {
+    return "Vageesh offers three core services: website design (stunning, high-performance sites that make lasting impressions), full-stack application development (production-grade systems built to scale from day one), and AI integration (bringing real intelligence into your product — chatbots, pipelines, smart automation). If you have an idea or a problem worth solving, the best next step is reaching out through the contact form below.";
+  }
+
+  // CONTACT / CONNECT / REACH
+  if (q.match(/contact|connect|reach|email|linkedin|github|social|hire|talk|meet/)) {
+    return "You can reach Vageesh through the contact form right below this chatbot — just drop your name, email, and message and he'll get back to you. You can also connect on LinkedIn at linkedin.com/in/vageesh-kudutini-ramesh or explore his code on GitHub at github.com/vageesh-kudutini-ramesh. He's always open to interesting conversations about projects, opportunities, or ideas worth building.";
+  }
+
+  // FUN / PERSONAL / QUIRKY
+  if (q.match(/fun|hobby|personal|outside work|ice.skat|quirk|interest|free time|human/)) {
+    return "Outside of code, Vageesh loves ice skating outdoors — specifically to scientifically measure how fast his hands can achieve the color and texture of frozen red sausages. The results are consistently faster than expected. He's the kind of person who's equally comfortable debugging a production issue at 2am and being genuinely present in a random moment of everyday discovery. The curiosity that makes him a good engineer doesn't turn off when the laptop closes.";
+  }
+
+  // WHO ARE YOU / ABOUT / INTRODUCE
+  if (q.match(/who|about|introduc|tell me about|yourself|vageesh|background/)) {
+    return "Vageesh Kudutini Ramesh is a Software Engineer with a strong backend focus, specializing in AI integration and cloud architecture. He's currently finishing his Master's in CS at Northeastern University with a perfect 4.0 GPA. He's worked at health-tech and tech startup companies, built production-deployed applications in finance and meal planning, and holds AWS and Oracle cloud certifications. What really sets him apart is his drive to discover — every day is an opportunity to solve something real and make it work.";
+  }
+
+  // DEFAULT fallback
+  return "That's a great question! Vageesh is a Software Engineer specializing in backend development, AI integration, and cloud architecture. You can ask me about his technical skills, work experience, projects, education, certifications, services, or what makes him tick as a person. What would you like to know?";
 }
 
 function askSuggestion(el) {
