@@ -7,20 +7,35 @@ exports.handler = async function (event, context) {
     };
   }
 
-  // Grab the API key from Netlify Environment Variables (never exposed to browser)
+  // Grab the API key from Netlify Environment Variables
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
   if (!GEMINI_API_KEY) {
+    console.error("GEMINI_API_KEY is not set in environment variables");
     return {
       statusCode: 500,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ error: "API key not configured" }),
     };
   }
 
-  try {
-    const { messages, systemInstruction } = JSON.parse(event.body);
+  let messages, systemInstruction;
 
-    const response = await fetch(
+  try {
+    const parsed = JSON.parse(event.body);
+    messages = parsed.messages;
+    systemInstruction = parsed.systemInstruction;
+  } catch (e) {
+    console.error("Failed to parse request body:", e);
+    return {
+      statusCode: 400,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Invalid request body" }),
+    };
+  }
+
+  try {
+    const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
@@ -36,7 +51,18 @@ exports.handler = async function (event, context) {
       }
     );
 
-    const data = await response.json();
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      console.error("Gemini API error:", geminiRes.status, errText);
+      return {
+        statusCode: 502,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Gemini API error", detail: errText }),
+      };
+    }
+
+    const data = await geminiRes.json();
+    console.log("Gemini response received successfully");
 
     return {
       statusCode: 200,
@@ -47,9 +73,11 @@ exports.handler = async function (event, context) {
       body: JSON.stringify(data),
     };
   } catch (error) {
+    console.error("Function error:", error.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to reach Gemini API" }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Failed to reach Gemini API", detail: error.message }),
     };
   }
 };
