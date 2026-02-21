@@ -50,7 +50,7 @@ exports.handler = async function (event, context) {
         "X-Title": "Vageesh Portfolio Chatbot"
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.2-3b-instruct:free",
+        model: "google/gemini-2.0-flash-exp:free",
         messages: openAIMessages,
         max_tokens: 400,
         temperature: 0.85
